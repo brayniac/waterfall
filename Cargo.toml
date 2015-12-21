@@ -9,6 +9,6 @@ readme = "README.md"
 
 description = "[placeholder] waterfall data visualization"
 
-documentation = ""
-homepage = ""
-repository = ""
+documentation = "https://brayniac.github.io/waterfall"
+homepage = "https://github.com/brayniac/waterfall"
+repository = "https://github.com/brayniac/waterfall"
