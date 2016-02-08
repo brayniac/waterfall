@@ -12,7 +12,33 @@ use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
 use std::path::Path;
 
 pub struct Waterfall {
-	heatmap: Heatmap,
+	pub heatmap: Heatmap,
+}
+
+pub struct WaterfallConfig {
+	num_slices: usize,
+	precision: u32,
+	slice_duration: u64,
+}
+
+impl WaterfallConfig {
+	pub fn new() -> WaterfallConfig {
+		WaterfallConfig {
+			precision: 2,
+			num_slices: 300,
+			slice_duration: 1,
+		}
+	}
+
+	pub fn num_slices(&mut self, count: usize) -> &mut Self {
+		self.num_slices = count;
+		self
+	}
+
+	pub fn slice_duration(&mut self, value: u64) -> &mut Self {
+		self.slice_duration = value;
+		self
+	}
 }
 
 struct Label {
@@ -22,10 +48,14 @@ struct Label {
 
 impl Waterfall {
 	pub fn new() -> Waterfall {
+		Waterfall::configured(WaterfallConfig::new())
+	}
+
+	pub fn configured(config: WaterfallConfig) -> Waterfall {
 		let mut c = HeatmapConfig::new();
-		c.precision(2);
-		c.num_slices(1800);
-		c.slice_duration(1);
+		c.precision(config.precision);
+		c.num_slices(config.num_slices);
+		c.slice_duration(config.slice_duration);
 		let heatmap = Heatmap::configured(c).unwrap();
 		Waterfall {
 			heatmap: heatmap,
@@ -40,7 +70,6 @@ impl Waterfall {
 	pub fn merge_heatmap(&mut self, mut heatmap: Heatmap) {
 		self.heatmap.merge(&mut heatmap);
 	}
-
 
 	pub fn find_max(&mut self) -> u64 {
 		let mut max = 0_u64;
@@ -316,7 +345,9 @@ impl ImageBuffer<ColorRgb> {
 		for sx in 0..other.width {
 			for sy in 0..other.height {
 				if other.buffer[sy][sx] != ignore {
-					self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
+					if ((sy + y) < self.height) && ((sx + x) < self.width){
+						self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
+					}
 				}
 			}
 		}
