@@ -14,19 +14,25 @@ pub struct Waterfall {
 	pub heatmap: Heatmap,
 }
 
-pub struct WaterfallConfig {
+pub struct Config {
 	num_slices: usize,
 	precision: u32,
 	slice_duration: u64,
 }
 
-impl WaterfallConfig {
-	pub fn new() -> WaterfallConfig {
-		WaterfallConfig {
+impl Default for Config {
+	fn default() -> Config {
+		Config {
 			precision: 2,
 			num_slices: 300,
 			slice_duration: 1,
-		}
+		}		
+	}
+}
+
+impl Config {
+	pub fn new() -> Config {
+		Default::default()
 	}
 
 	pub fn num_slices(&mut self, count: usize) -> &mut Self {
@@ -38,6 +44,10 @@ impl WaterfallConfig {
 		self.slice_duration = value;
 		self
 	}
+
+	pub fn build(self) -> Waterfall {
+		Waterfall::configured(self)
+	}
 }
 
 struct Label {
@@ -45,12 +55,22 @@ struct Label {
 	text: String,
 }
 
+impl Default for Waterfall {
+	fn default() -> Waterfall {
+		Waterfall::configured(Config::default())
+	}
+}
+
 impl Waterfall {
 	pub fn new() -> Waterfall {
-		Waterfall::configured(WaterfallConfig::new())
+		Default::default()
 	}
 
-	pub fn configured(config: WaterfallConfig) -> Waterfall {
+	pub fn configure() -> Config {
+		Config::default()
+	}
+
+	fn configured(config: Config) -> Waterfall {
 		let heatmap = Heatmap::configure()
 			.precision(config.precision)
 			.num_slices(config.num_slices)
@@ -159,7 +179,6 @@ impl Waterfall {
 		let _ = buffer.write_png(file.clone());
 	}
 
-	
 }
 
 fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
