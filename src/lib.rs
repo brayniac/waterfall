@@ -160,13 +160,11 @@ impl Waterfall {
                         buffer.horizontal_line(y, ColorRgb { r: 0, g: 0, b: 0 });
                     }
                     let v = bucket.value();
-                    if l < labels.len() {
-                        if v >= labels[l].value {
-                            let overlay = string_buffer(labels[l].text.clone(), 25.0);
-                            buffer.overlay(&overlay, x, y);
-                            buffer.vertical_line(x, ColorRgb { r: 0, g: 0, b: 0 });
-                            l += 1;
-                        }
+                    if (l < labels.len()) && (v >= labels[l].value) {
+                        let overlay = string_buffer(labels[l].text.clone(), 25.0);
+                        buffer.overlay(&overlay, x, y);
+                        buffer.vertical_line(x, ColorRgb { r: 0, g: 0, b: 0 });
+                        l += 1;
                     }
 
                 }
@@ -306,10 +304,9 @@ impl ImageBuffer<ColorRgb> {
         let ignore = ColorRgb { r: 0, g: 0, b: 0 };
         for sx in 0..other.width {
             for sy in 0..other.height {
-                if other.buffer[sy][sx] != ignore {
-                    if ((sy + y) < self.height) && ((sx + x) < self.width) {
-                        self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
-                    }
+                if (other.buffer[sy][sx] != ignore) &&
+                   (((sy + y) < self.height) && ((sx + x) < self.width)) {
+                    self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
                 }
             }
         }
