@@ -3,27 +3,26 @@ extern crate hsl;
 extern crate lodepng;
 extern crate rusttype;
 
-use heatmap::*;
-use hsl::*;
-use lodepng::*;
-
-use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
-
 use std::path::Path;
+
+use heatmap::Heatmap;
+use hsl::HSL;
+use lodepng::encode_file;
+use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
 
 pub struct Waterfall {
     pub heatmap: Heatmap,
 }
 
-pub struct WaterfallConfig {
+pub struct Config {
     num_slices: usize,
     precision: u32,
     slice_duration: u64,
 }
 
-impl Default for WaterfallConfig {
-    fn default() -> WaterfallConfig {
-        WaterfallConfig {
+impl Default for Config {
+    fn default() -> Config {
+        Config {
             precision: 2,
             num_slices: 300,
             slice_duration: 1,
@@ -31,8 +30,8 @@ impl Default for WaterfallConfig {
     }
 }
 
-impl WaterfallConfig {
-    pub fn new() -> WaterfallConfig {
+impl Config {
+    pub fn new() -> Config {
         Default::default()
     }
 
@@ -45,6 +44,10 @@ impl WaterfallConfig {
         self.slice_duration = value;
         self
     }
+
+    pub fn build(self) -> Waterfall {
+        Waterfall::configured(self)
+    }
 }
 
 struct Label {
@@ -54,7 +57,7 @@ struct Label {
 
 impl Default for Waterfall {
     fn default() -> Waterfall {
-        Waterfall::configured(WaterfallConfig::new())
+        Waterfall::configured(Config::default())
     }
 }
 
@@ -63,12 +66,17 @@ impl Waterfall {
         Default::default()
     }
 
-    pub fn configured(config: WaterfallConfig) -> Waterfall {
-        let mut c = HeatmapConfig::new();
-        c.precision(config.precision);
-        c.num_slices(config.num_slices);
-        c.slice_duration(config.slice_duration);
-        let heatmap = Heatmap::configured(c).unwrap();
+    pub fn configure() -> Config {
+        Config::default()
+    }
+
+    fn configured(config: Config) -> Waterfall {
+        let heatmap = Heatmap::configure()
+            .precision(config.precision)
+            .num_slices(config.num_slices)
+            .slice_duration(config.slice_duration)
+            .build()
+            .unwrap();
         Waterfall { heatmap: heatmap }
     }
 
@@ -84,8 +92,8 @@ impl Waterfall {
     pub fn find_max(&mut self) -> u64 {
         let mut max = 0_u64;
 
-        for slice in self.heatmap.clone() {
-            for bucket in slice.histogram {
+        for slice in &self.heatmap {
+            for bucket in &slice.histogram {
                 if bucket.count() > max {
                     max = bucket.count();
                 }
@@ -105,10 +113,9 @@ impl Waterfall {
         let mut y = 0;
 
         // loop to color the pixels
-        for slice in self.heatmap.clone() {
-            // let mut histogram = slice.histogram.clone();
+        for slice in &self.heatmap {
             x = 0;
-            for bucket in slice.histogram {
+            for bucket in &slice.histogram {
                 let pixel = color_from_value(bucket.count(), max);
                 buffer.set_pixel(x, y, pixel);
                 x += 1;
@@ -143,26 +150,25 @@ impl Waterfall {
         let mut l = 0;
         y = 0;
 
-        for slice in self.heatmap.clone() {
+        for slice in &self.heatmap {
             x = 0;
-            for bucket in slice.histogram {
+            for bucket in &slice.histogram {
                 if (y % 60) == 0 {
                     if x == 0 {
                         let hour = y / 3600;
                         let minute = y / 60;
                         let time = format!("{:02}:{:02}", hour, minute);
-                        let overlay = string_buffer(time.clone(), 25.0);
+                        let overlay = string_buffer(time.to_string(), 25.0);
                         buffer.overlay(&overlay, x, y);
                         buffer.horizontal_line(y, ColorRgb { r: 0, g: 0, b: 0 });
                     }
                     let v = bucket.value();
-                    if l < labels.len() && v >= labels[l].value {
+                    if (l < labels.len()) && (v >= labels[l].value) {
                         let overlay = string_buffer(labels[l].text.clone(), 25.0);
                         buffer.overlay(&overlay, x, y);
                         buffer.vertical_line(x, ColorRgb { r: 0, g: 0, b: 0 });
                         l += 1;
                     }
-
                 }
                 x += 1;
             }
@@ -190,9 +196,9 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
     let glyphs: Vec<PositionedGlyph> = font.layout(&string, scale, offset).collect();
 
     let width = glyphs.iter()
-                      .map(|g| g.h_metrics().advance_width)
-                      .fold(0.0, |x, y| x + y)
-                      .ceil() as usize;
+        .map(|g| g.h_metrics().advance_width)
+        .fold(0.0, |x, y| x + y)
+        .ceil() as usize;
 
     let mut overlay = ImageBuffer::<ColorRgb>::new(width, pixel_height);
 
@@ -218,34 +224,28 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
 }
 
 fn color_from_value(value: u64, max: u64) -> ColorRgb {
-    let qmax = (max as f64) / 20_f64;
-    let fvalue = value as f64;
+    let value = (value as f64) / (max as f64);
 
-    let mut hsl = HSL {
-        h: 236_f64,
-        s: 1_f64,
-        l: 0.25_f64,
-    };
+    let knee = 0.20_f64;
 
-    if fvalue > 0_f64 {
+    let hsl: HSL;
 
-        if fvalue < qmax {
-            let l = 0.25_f64 + 0.15_f64 * fvalue / qmax;
-            hsl = HSL {
-                h: 236_f64,
-                s: 1_f64,
-                l: l,
-            };
-        } else {
-            let h_per_deg: f64 = 236_f64 / (max as f64 - qmax);
-            let deg = (fvalue - qmax) * h_per_deg;
+    if value < knee {
+        let l = 0.25_f64 + 0.25_f64 * value / knee;
+        hsl = HSL {
+            h: 236_f64,
+            s: 1_f64,
+            l: l,
+        };
+    } else {
+        let h_per_deg: f64 = 236_f64 / (1.0_f64 - knee);
+        let deg = (value - knee) * h_per_deg;
 
-            hsl = HSL {
-                h: (236_f64 - deg),
-                s: 1_f64,
-                l: 0.50_f64,
-            };
-        }
+        hsl = HSL {
+            h: (236_f64 - deg),
+            s: 1_f64,
+            l: 0.50_f64,
+        };
     }
 
     let (r, g, b) = hsl.to_rgb();
@@ -308,8 +308,8 @@ impl ImageBuffer<ColorRgb> {
         let ignore = ColorRgb { r: 0, g: 0, b: 0 };
         for sx in 0..other.width {
             for sy in 0..other.height {
-                if other.buffer[sy][sx] != ignore && ((sy + y) < self.height) &&
-                   ((sx + x) < self.width) {
+                if (other.buffer[sy][sx] != ignore) &&
+                   (((sy + y) < self.height) && ((sx + x) < self.width)) {
                     self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
                 }
             }

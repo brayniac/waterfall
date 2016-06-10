@@ -1,13 +1,13 @@
 [package]
 name = "waterfall"
-version = "0.1.4"
+version = "0.2.0"
 authors = ["Brian Martin <brayniac@gmail.com>"]
 
 license = "MIT OR Apache-2.0"
 
 readme = "README.md"
 
-description = "[placeholder] waterfall data visualization"
+description = "waterfall data visualization"
 
 documentation = "https://brayniac.github.io/waterfall"
 homepage = "https://github.com/brayniac/waterfall"
@@ -15,6 +15,6 @@ repository = "https://github.com/brayniac/waterfall"
 
 [dependencies]
 hsl = "0.1.1"
-lodepng = "0.5.1"
+lodepng = "0.5.3"
 rusttype = "0.1.2"
-heatmap = "0.1.7"
+heatmap = "0.2.0"
