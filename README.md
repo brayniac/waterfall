@@ -8,7 +8,7 @@ To use `waterfall`, first add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-waterfall = "0.1.0"
+waterfall = "0.2.0"
 ```
 
 Then, add this to your crate root:
