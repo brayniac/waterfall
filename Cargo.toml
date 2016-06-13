@@ -1,6 +1,6 @@
 [package]
 name = "waterfall"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Brian Martin <brayniac@gmail.com>"]
 
 license = "MIT OR Apache-2.0"
@@ -17,4 +17,4 @@ repository = "https://github.com/brayniac/waterfall"
 hsl = "0.1.1"
 lodepng = "0.5.3"
 rusttype = "0.1.2"
-heatmap = "0.2.0"
+heatmap = "0.3.0"

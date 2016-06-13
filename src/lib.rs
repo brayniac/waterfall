@@ -93,7 +93,7 @@ impl Waterfall {
         let mut max = 0_u64;
 
         for slice in &self.heatmap {
-            for bucket in &slice.histogram {
+            for bucket in &slice.histogram() {
                 if bucket.count() > max {
                     max = bucket.count();
                 }
@@ -115,7 +115,7 @@ impl Waterfall {
         // loop to color the pixels
         for slice in &self.heatmap {
             x = 0;
-            for bucket in &slice.histogram {
+            for bucket in &slice.histogram() {
                 let pixel = color_from_value(bucket.count(), max);
                 buffer.set_pixel(x, y, pixel);
                 x += 1;
@@ -152,7 +152,7 @@ impl Waterfall {
 
         for slice in &self.heatmap {
             x = 0;
-            for bucket in &slice.histogram {
+            for bucket in &slice.histogram() {
                 if (y % 60) == 0 {
                     if x == 0 {
                         let hour = y / 3600;
