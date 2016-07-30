@@ -35,12 +35,12 @@ impl Config {
         Default::default()
     }
 
-    pub fn num_slices(&mut self, count: usize) -> &mut Self {
+    pub fn num_slices(mut self, count: usize) -> Self {
         self.num_slices = count;
         self
     }
 
-    pub fn slice_duration(&mut self, value: u64) -> &mut Self {
+    pub fn slice_duration(mut self, value: u64) -> Self {
         self.slice_duration = value;
         self
     }
