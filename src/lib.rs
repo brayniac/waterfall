@@ -10,39 +10,22 @@ use hsl::HSL;
 use lodepng::encode_file;
 use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
 
+#[allow(dead_code)]
 pub struct Waterfall {
-    pub heatmap: Heatmap,
+    config: Config,
 }
 
-pub struct Config {
-    num_slices: usize,
-    precision: u32,
-    slice_duration: u64,
-}
+pub struct Config { }
 
 impl Default for Config {
     fn default() -> Config {
-        Config {
-            precision: 2,
-            num_slices: 300,
-            slice_duration: 1,
-        }
+        Config { }
     }
 }
 
 impl Config {
     pub fn new() -> Config {
         Default::default()
-    }
-
-    pub fn num_slices(mut self, count: usize) -> Self {
-        self.num_slices = count;
-        self
-    }
-
-    pub fn slice_duration(mut self, value: u64) -> Self {
-        self.slice_duration = value;
-        self
     }
 
     pub fn build(self) -> Waterfall {
@@ -71,49 +54,23 @@ impl Waterfall {
     }
 
     fn configured(config: Config) -> Waterfall {
-        let heatmap = Heatmap::configure()
-            .precision(config.precision)
-            .num_slices(config.num_slices)
-            .slice_duration(config.slice_duration)
-            .build()
-            .unwrap();
-        Waterfall { heatmap: heatmap }
-    }
-
-    pub fn load_file(&mut self, file: String) {
-        let mut d = Heatmap::load(file.clone());
-        self.heatmap.merge(&mut d);
-    }
-
-    pub fn merge_heatmap(&mut self, mut heatmap: Heatmap) {
-        self.heatmap.merge(&mut heatmap);
-    }
-
-    pub fn find_max(&mut self) -> u64 {
-        let mut max = 0_u64;
-
-        for slice in &self.heatmap {
-            for bucket in &slice.histogram() {
-                if bucket.count() > max {
-                    max = bucket.count();
-                }
-            }
+        Waterfall {
+            config: config,
         }
-        max
     }
 
-    pub fn render_png(&mut self, file: String) {
-        let height = self.heatmap.num_slices() as usize;
-        let width = self.heatmap.histogram_buckets() as usize;
+    pub fn render_png(&mut self, heatmap: &Heatmap, file: String) {
+        let height = heatmap.num_slices() as usize;
+        let width = heatmap.histogram_buckets() as usize;
 
         // build buffer from data
         let mut buffer = ImageBuffer::<ColorRgb>::new(width, height);
-        let max = self.find_max();
+        let max = find_max(&heatmap);
         let mut x;
         let mut y = 0;
 
         // loop to color the pixels
-        for slice in &self.heatmap {
+        for slice in heatmap {
             x = 0;
             for bucket in &slice.histogram() {
                 let pixel = color_from_value(bucket.count(), max);
@@ -150,7 +107,7 @@ impl Waterfall {
         let mut l = 0;
         y = 0;
 
-        for slice in &self.heatmap {
+        for slice in heatmap {
             x = 0;
             for bucket in &slice.histogram() {
                 if (y % 60) == 0 {
@@ -177,6 +134,19 @@ impl Waterfall {
 
         let _ = buffer.write_png(file.clone());
     }
+}
+
+fn find_max(heatmap: &Heatmap) -> u64 {
+    let mut max = 0_u64;
+
+    for slice in heatmap {
+        for bucket in &slice.histogram() {
+            if bucket.count() > max {
+                max = bucket.count();
+            }
+        }
+    }
+    max
 }
 
 fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
