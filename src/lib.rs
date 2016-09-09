@@ -19,7 +19,7 @@ pub struct Config { }
 
 impl Default for Config {
     fn default() -> Config {
-        Config { }
+        Config {}
     }
 }
 
@@ -54,9 +54,7 @@ impl Waterfall {
     }
 
     fn configured(config: Config) -> Waterfall {
-        Waterfall {
-            config: config,
-        }
+        Waterfall { config: config }
     }
 
     pub fn render_png(&mut self, heatmap: &Heatmap, file: String) {
@@ -73,7 +71,7 @@ impl Waterfall {
         for slice in heatmap {
             x = 0;
             for bucket in &slice.histogram() {
-                let pixel = color_from_value(bucket.count(), max);
+                let pixel = color_from_value(bucket.count() / bucket.width(), max);
                 buffer.set_pixel(x, y, pixel);
                 x += 1;
             }
@@ -141,8 +139,9 @@ fn find_max(heatmap: &Heatmap) -> u64 {
 
     for slice in heatmap {
         for bucket in &slice.histogram() {
-            if bucket.count() > max {
-                max = bucket.count();
+            let value = bucket.count() / bucket.width();
+            if value > max {
+                max = value;
             }
         }
     }
