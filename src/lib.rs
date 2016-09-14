@@ -63,7 +63,7 @@ impl Waterfall {
 
         // build buffer from data
         let mut buffer = ImageBuffer::<ColorRgb>::new(width, height);
-        let max = find_max(&heatmap);
+        let max = find_max(heatmap);
         let mut x;
         let mut y = 0;
 
@@ -71,7 +71,8 @@ impl Waterfall {
         for slice in heatmap {
             x = 0;
             for bucket in &slice.histogram() {
-                let pixel = color_from_value(bucket.count() / bucket.width(), max);
+                let value = (bucket.count() as f64) / (bucket.width() as f64);
+                let pixel = color_from_value(value, max);
                 buffer.set_pixel(x, y, pixel);
                 x += 1;
             }
@@ -134,12 +135,12 @@ impl Waterfall {
     }
 }
 
-fn find_max(heatmap: &Heatmap) -> u64 {
-    let mut max = 0_u64;
+fn find_max(heatmap: &Heatmap) -> f64 {
+    let mut max = 0.0;
 
     for slice in heatmap {
         for bucket in &slice.histogram() {
-            let value = bucket.count() / bucket.width();
+            let value = (bucket.count() as f64) / (bucket.width() as f64);
             if value > max {
                 max = value;
             }
@@ -192,30 +193,28 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
     overlay
 }
 
-fn color_from_value(value: u64, max: u64) -> ColorRgb {
-    let value = (value as f64) / (max as f64);
+fn color_from_value(value: f64, max: f64) -> ColorRgb {
+    let value = value / max;
 
     let knee = 0.20_f64;
 
-    let hsl: HSL;
-
-    if value < knee {
+    let hsl = if value < knee {
         let l = 0.25_f64 + 0.25_f64 * value / knee;
-        hsl = HSL {
+        HSL {
             h: 236_f64,
             s: 1_f64,
             l: l,
-        };
+        }
     } else {
         let h_per_deg: f64 = 236_f64 / (1.0_f64 - knee);
         let deg = (value - knee) * h_per_deg;
 
-        hsl = HSL {
+        HSL {
             h: (236_f64 - deg),
             s: 1_f64,
             l: 0.50_f64,
-        };
-    }
+        }
+    };
 
     let (r, g, b) = hsl.to_rgb();
 
