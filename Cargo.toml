@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 description = "waterfall data visualization"
+categories = ["visualization"]
 
 documentation = "https://brayniac.github.io/waterfall"
 homepage = "https://github.com/brayniac/waterfall"
