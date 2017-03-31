@@ -71,7 +71,7 @@ impl Waterfall {
         for slice in heatmap {
             x = 0;
             for bucket in &slice.histogram() {
-                let value = (bucket.count() as f64) / (bucket.width() as f64);
+                let value = bucket.count() as f64;
                 let pixel = color_from_value(value, max);
                 buffer.set_pixel(x, y, pixel);
                 x += 1;
@@ -140,7 +140,7 @@ fn find_max(heatmap: &Heatmap) -> f64 {
 
     for slice in heatmap {
         for bucket in &slice.histogram() {
-            let value = (bucket.count() as f64) / (bucket.width() as f64);
+            let value = bucket.count() as f64;
             if value > max {
                 max = value;
             }
@@ -196,7 +196,7 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
 fn color_from_value(value: f64, max: f64) -> ColorRgb {
     let value = value / max;
 
-    let knee = 0.20_f64;
+    let knee = 0.10_f64;
 
     let hsl = if value < knee {
         let l = 0.25_f64 + 0.25_f64 * value / knee;
