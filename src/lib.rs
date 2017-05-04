@@ -3,13 +3,13 @@ extern crate hsl;
 extern crate png;
 extern crate rusttype;
 
-use std::fs::File;
-use std::io::BufWriter;
-use png::HasParameters;
-use std::path::Path;
 use heatmap::Heatmap;
 use hsl::HSL;
-use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
+use png::HasParameters;
+use rusttype::{FontCollection, PixelsXY, PositionedGlyph, point};
+use std::fs::File;
+use std::io::BufWriter;
+use std::path::Path;
 
 #[allow(dead_code)]
 pub struct Waterfall {
@@ -326,7 +326,9 @@ impl ImageBuffer<ColorRgb> {
         if let Ok(file) = File::create(path) {
             let w = BufWriter::new(file);
             let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
-            encoder.set(png::ColorType::RGB).set(png::BitDepth::Eight);
+            encoder
+                .set(png::ColorType::RGB)
+                .set(png::BitDepth::Eight);
             if let Ok(mut writer) = encoder.write_header() {
                 if writer.write_image_data(&buffer).is_ok() {
                     Ok(())
