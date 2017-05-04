@@ -5,6 +5,14 @@ rust:
   - nightly
 os:
   - linux
+cache: cargo
+before_script: (cargo install rustfmt || true)
+script:
+- cargo build --verbose
+- cargo build --release --verbose
+- cargo test --verbose
+- cargo test --release --verbose
+- cargo fmt -- --write-mode=diff
 matrix:
   allow_failures:
     - rust: nightly
