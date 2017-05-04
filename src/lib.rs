@@ -1,13 +1,14 @@
 extern crate heatmap;
 extern crate hsl;
-extern crate lodepng;
+extern crate png;
 extern crate rusttype;
 
+use std::fs::File;
+use std::io::BufWriter;
+use png::HasParameters;
 use std::path::Path;
-
 use heatmap::Heatmap;
 use hsl::HSL;
-use lodepng::encode_file;
 use rusttype::{FontCollection, PixelsXY, point, PositionedGlyph};
 
 #[allow(dead_code)]
@@ -15,7 +16,7 @@ pub struct Waterfall {
     config: Config,
 }
 
-pub struct Config { }
+pub struct Config {}
 
 impl Default for Config {
     fn default() -> Config {
@@ -80,28 +81,86 @@ impl Waterfall {
         }
 
         // latency annotations
-        let labels: Vec<Label> = vec!(
-			Label{ value: 200, text: "200nS".to_string() },
-			Label{ value: 500, text: "500nS".to_string() },
-			Label{ value: 1000, text: "1uS".to_string() },
-			Label{ value: 2000, text: "2uS".to_string() },
-			Label{ value: 5000, text: "5uS".to_string() },
-			Label{ value: 10000, text: "10uS".to_string() },
-			Label{ value: 20000, text: "20uS".to_string() },
-			Label{ value: 50000, text: "50uS".to_string() },
-			Label{ value: 100000, text: "100uS".to_string() },
-			Label{ value: 200000, text: "200uS".to_string() },
-			Label{ value: 500000, text: "500uS".to_string() },
-			Label{ value: 1000000, text: "1mS".to_string() },
-			Label{ value: 2000000, text: "2mS".to_string() },
-			Label{ value: 5000000, text: "5mS".to_string() },
-			Label{ value: 10000000, text: "10mS".to_string() },
-			Label{ value: 20000000, text: "20mS".to_string() },
-			Label{ value: 50000000, text: "50mS".to_string() },
-			Label{ value: 100000000, text: "100mS".to_string() },
-			Label{ value: 200000000, text: "200mS".to_string() },
-			Label{ value: 500000000, text: "500mS".to_string() },
-			);
+        let labels: Vec<Label> = vec![Label {
+                                          value: 200,
+                                          text: "200nS".to_string(),
+                                      },
+                                      Label {
+                                          value: 500,
+                                          text: "500nS".to_string(),
+                                      },
+                                      Label {
+                                          value: 1000,
+                                          text: "1uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 2000,
+                                          text: "2uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 5000,
+                                          text: "5uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 10000,
+                                          text: "10uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 20000,
+                                          text: "20uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 50000,
+                                          text: "50uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 100000,
+                                          text: "100uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 200000,
+                                          text: "200uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 500000,
+                                          text: "500uS".to_string(),
+                                      },
+                                      Label {
+                                          value: 1000000,
+                                          text: "1mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 2000000,
+                                          text: "2mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 5000000,
+                                          text: "5mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 10000000,
+                                          text: "10mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 20000000,
+                                          text: "20mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 50000000,
+                                          text: "50mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 100000000,
+                                          text: "100mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 200000000,
+                                          text: "200mS".to_string(),
+                                      },
+                                      Label {
+                                          value: 500000000,
+                                          text: "500mS".to_string(),
+                                      }];
 
         let mut l = 0;
         y = 0;
@@ -165,7 +224,8 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
 
     let glyphs: Vec<PositionedGlyph> = font.layout(&string, scale, offset).collect();
 
-    let width = glyphs.iter()
+    let width = glyphs
+        .iter()
         .map(|g| g.h_metrics().advance_width)
         .fold(0.0, |x, y| x + y)
         .ceil() as usize;
@@ -252,7 +312,7 @@ impl ImageBuffer<ColorRgb> {
         }
     }
 
-    pub fn write_png(self, file: String) -> Result<(), lodepng::ffi::Error> {
+    pub fn write_png(self, file: String) -> Result<(), &'static str> {
         let mut buffer = Vec::<u8>::with_capacity((self.height * self.width));
         for row in 0..self.height {
             for col in 0..self.width {
@@ -263,7 +323,22 @@ impl ImageBuffer<ColorRgb> {
             }
         }
         let path = &Path::new(&file);
-        encode_file(path, &buffer, self.width, self.height, lodepng::LCT_RGB, 8)
+        if let Ok(file) = File::create(path) {
+            let w = BufWriter::new(file);
+            let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
+            encoder.set(png::ColorType::RGB).set(png::BitDepth::Eight);
+            if let Ok(mut writer) = encoder.write_header() {
+                if writer.write_image_data(&buffer).is_ok() {
+                    Ok(())
+                } else {
+                    Err("Error writing PNG data")
+                }
+            } else {
+                Err("Error writing PNG header")
+            }
+        } else {
+            Err("Error creating file")
+        }
     }
 
     pub fn set_pixel(&mut self, x: usize, y: usize, value: ColorRgb) {

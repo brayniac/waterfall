@@ -16,6 +16,6 @@ repository = "https://github.com/brayniac/waterfall"
 
 [dependencies]
 hsl = "0.1.1"
-lodepng = "0.5.3"
 rusttype = "0.1.2"
 heatmap = "0.6.2"
+png = "0.7.0"
