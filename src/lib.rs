@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 extern crate heatmap;
 extern crate hsl;
 extern crate png;
@@ -173,13 +175,13 @@ impl Waterfall {
                         let hour = y / 3600;
                         let minute = y / 60;
                         let time = format!("{:02}:{:02}", hour, minute);
-                        let overlay = string_buffer(time.to_string(), 25.0);
+                        let overlay = string_buffer(&time, 25.0);
                         buffer.overlay(&overlay, x, y);
                         buffer.horizontal_line(y, ColorRgb { r: 0, g: 0, b: 0 });
                     }
                     let v = bucket.value();
                     if (l < labels.len()) && (v >= labels[l].value) {
-                        let overlay = string_buffer(labels[l].text.clone(), 25.0);
+                        let overlay = string_buffer(&labels[l].text, 25.0);
                         buffer.overlay(&overlay, x, y);
                         buffer.vertical_line(x, ColorRgb { r: 0, g: 0, b: 0 });
                         l += 1;
@@ -208,7 +210,7 @@ fn find_max(heatmap: &Heatmap) -> f64 {
     max
 }
 
-fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
+fn string_buffer(string: &str, size: f32) -> ImageBuffer<ColorRgb> {
     // load font
     let font_data = include_bytes!("../assets/ubuntumono/UbuntuMono-Regular.ttf");
     let collection = FontCollection::from_bytes(font_data as &[u8]);
@@ -222,7 +224,7 @@ fn string_buffer(string: String, size: f32) -> ImageBuffer<ColorRgb> {
     let v_metrics = font.v_metrics(scale);
     let offset = point(0.0, v_metrics.ascent);
 
-    let glyphs: Vec<PositionedGlyph> = font.layout(&string, scale, offset).collect();
+    let glyphs: Vec<PositionedGlyph> = font.layout(string, scale, offset).collect();
 
     let width = glyphs
         .iter()
@@ -313,7 +315,7 @@ impl ImageBuffer<ColorRgb> {
     }
 
     pub fn write_png(self, file: String) -> Result<(), &'static str> {
-        let mut buffer = Vec::<u8>::with_capacity((self.height * self.width));
+        let mut buffer = Vec::<u8>::with_capacity(self.height * self.width);
         for row in 0..self.height {
             for col in 0..self.width {
                 let pixel = self.buffer[row][col];
@@ -326,9 +328,7 @@ impl ImageBuffer<ColorRgb> {
         if let Ok(file) = File::create(path) {
             let w = BufWriter::new(file);
             let mut encoder = png::Encoder::new(w, self.width as u32, self.height as u32);
-            encoder
-                .set(png::ColorType::RGB)
-                .set(png::BitDepth::Eight);
+            encoder.set(png::ColorType::RGB).set(png::BitDepth::Eight);
             if let Ok(mut writer) = encoder.write_header() {
                 if writer.write_image_data(&buffer).is_ok() {
                     Ok(())

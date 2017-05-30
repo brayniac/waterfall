@@ -1,18 +1,22 @@
 language: rust
-rust:
-  - stable
-  - beta
-  - nightly
-os:
-  - linux
 cache: cargo
-before_script: (cargo install rustfmt || true)
-script:
-- cargo build --verbose
-- cargo build --release --verbose
-- cargo test --verbose
-- cargo test --release --verbose
-- cargo fmt -- --write-mode=diff
+rust:
+- stable
+- beta
+- nightly
+os: linux
+env: TYPE=default RUST_BACKTRACE=1
 matrix:
-  allow_failures:
-    - rust: nightly
+  include:
+    - os: linux
+      rust: stable
+      env: TYPE=rustfmt RUST_BACKTRACE=1
+      script:
+        - (travis_wait 20 cargo install rustfmt || true)
+        - cargo fmt -- --write-mode=diff
+    - os: linux
+      rust: nightly
+      env: TYPE=clippy RUST_BACKTRACE=1
+      script:
+        - (travis_wait 20 cargo install clippy || true)
+        - cargo clippy
