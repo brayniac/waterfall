@@ -2,20 +2,20 @@
 
 waterfall is a library to render a PNG image from a Heatmap. It is expected to be useful in visualising latency measurements over time
 
+[![travis-badge][]][travis] [![downloads-badge][] ![release-badge][]][crate] [![license-badge][]](#license)
+
+[travis-badge]: https://img.shields.io/travis/brayniac/waterfall/master.svg
+[downloads-badge]: https://img.shields.io/crates/d/waterfall.svg
+[release-badge]: https://img.shields.io/crates/v/waterfall.svg
+[license-badge]: https://img.shields.io/crates/l/waterfall.svg
+[travis]: https://travis-ci.org/brayniac/waterfall
+[crate]: https://crates.io/crates/waterfall
+[Cargo]: https://github.com/rust-lang/cargo
+
 ## Usage
 
-To use `waterfall`, first add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-waterfall = "0.2.0"
-```
-
-Then, add this to your crate root:
-
-```rust
-extern crate waterfall;
-```
+The API documentation of this library can be found at
+[docs.rs/waterfall](https://docs.rs/waterfall/)
 
 ## Features
 
