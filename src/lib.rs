@@ -83,86 +83,88 @@ impl Waterfall {
         }
 
         // latency annotations
-        let labels: Vec<Label> = vec![Label {
-                                          value: 200,
-                                          text: "200nS".to_string(),
-                                      },
-                                      Label {
-                                          value: 500,
-                                          text: "500nS".to_string(),
-                                      },
-                                      Label {
-                                          value: 1000,
-                                          text: "1uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 2000,
-                                          text: "2uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 5000,
-                                          text: "5uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 10000,
-                                          text: "10uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 20000,
-                                          text: "20uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 50000,
-                                          text: "50uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 100000,
-                                          text: "100uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 200000,
-                                          text: "200uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 500000,
-                                          text: "500uS".to_string(),
-                                      },
-                                      Label {
-                                          value: 1000000,
-                                          text: "1mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 2000000,
-                                          text: "2mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 5000000,
-                                          text: "5mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 10000000,
-                                          text: "10mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 20000000,
-                                          text: "20mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 50000000,
-                                          text: "50mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 100000000,
-                                          text: "100mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 200000000,
-                                          text: "200mS".to_string(),
-                                      },
-                                      Label {
-                                          value: 500000000,
-                                          text: "500mS".to_string(),
-                                      }];
+        let labels: Vec<Label> = vec![
+            Label {
+                value: 200,
+                text: "200nS".to_string(),
+            },
+            Label {
+                value: 500,
+                text: "500nS".to_string(),
+            },
+            Label {
+                value: 1000,
+                text: "1uS".to_string(),
+            },
+            Label {
+                value: 2000,
+                text: "2uS".to_string(),
+            },
+            Label {
+                value: 5000,
+                text: "5uS".to_string(),
+            },
+            Label {
+                value: 10000,
+                text: "10uS".to_string(),
+            },
+            Label {
+                value: 20000,
+                text: "20uS".to_string(),
+            },
+            Label {
+                value: 50000,
+                text: "50uS".to_string(),
+            },
+            Label {
+                value: 100000,
+                text: "100uS".to_string(),
+            },
+            Label {
+                value: 200000,
+                text: "200uS".to_string(),
+            },
+            Label {
+                value: 500000,
+                text: "500uS".to_string(),
+            },
+            Label {
+                value: 1000000,
+                text: "1mS".to_string(),
+            },
+            Label {
+                value: 2000000,
+                text: "2mS".to_string(),
+            },
+            Label {
+                value: 5000000,
+                text: "5mS".to_string(),
+            },
+            Label {
+                value: 10000000,
+                text: "10mS".to_string(),
+            },
+            Label {
+                value: 20000000,
+                text: "20mS".to_string(),
+            },
+            Label {
+                value: 50000000,
+                text: "50mS".to_string(),
+            },
+            Label {
+                value: 100000000,
+                text: "100mS".to_string(),
+            },
+            Label {
+                value: 200000000,
+                text: "200mS".to_string(),
+            },
+            Label {
+                value: 500000000,
+                text: "500mS".to_string(),
+            },
+        ];
 
         let mut l = 0;
         y = 0;
@@ -240,13 +242,15 @@ fn string_buffer(string: &str, size: f32) -> ImageBuffer<ColorRgb> {
                 let x = (x as i32 + bb.min.x) as usize;
                 let y = (y as i32 + bb.min.y) as usize;
                 if v > 0.25 {
-                    overlay.set_pixel(x,
-                                      y,
-                                      ColorRgb {
-                                          r: 255,
-                                          g: 255,
-                                          b: 255,
-                                      });
+                    overlay.set_pixel(
+                        x,
+                        y,
+                        ColorRgb {
+                            r: 255,
+                            g: 255,
+                            b: 255,
+                        },
+                    );
                 }
             })
         }
@@ -354,7 +358,8 @@ impl ImageBuffer<ColorRgb> {
         for sx in 0..other.width {
             for sy in 0..other.height {
                 if (other.buffer[sy][sx] != ignore) &&
-                   (((sy + y) < self.height) && ((sx + x) < self.width)) {
+                    (((sy + y) < self.height) && ((sx + x) < self.width))
+                {
                     self.buffer[(sy + y)][(sx + x)] = other.buffer[sy][sx];
                 }
             }
