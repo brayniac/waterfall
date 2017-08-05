@@ -13,6 +13,9 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 
+const US: u64 = 1_000;
+const MS: u64 = 1_000 * US;
+
 #[allow(dead_code)]
 pub struct Waterfall {
     config: Config,
@@ -93,75 +96,75 @@ impl Waterfall {
                 text: "500nS".to_string(),
             },
             Label {
-                value: 1000,
+                value: US,
                 text: "1uS".to_string(),
             },
             Label {
-                value: 2000,
+                value: 2 * US,
                 text: "2uS".to_string(),
             },
             Label {
-                value: 5000,
+                value: 5 * US,
                 text: "5uS".to_string(),
             },
             Label {
-                value: 10000,
+                value: 10 * US,
                 text: "10uS".to_string(),
             },
             Label {
-                value: 20000,
+                value: 20 * US,
                 text: "20uS".to_string(),
             },
             Label {
-                value: 50000,
+                value: 50 * US,
                 text: "50uS".to_string(),
             },
             Label {
-                value: 100000,
+                value: 100 * US,
                 text: "100uS".to_string(),
             },
             Label {
-                value: 200000,
+                value: 200 * US,
                 text: "200uS".to_string(),
             },
             Label {
-                value: 500000,
+                value: 500 * US,
                 text: "500uS".to_string(),
             },
             Label {
-                value: 1000000,
+                value: MS,
                 text: "1mS".to_string(),
             },
             Label {
-                value: 2000000,
+                value: 2 * MS,
                 text: "2mS".to_string(),
             },
             Label {
-                value: 5000000,
+                value: 5 * MS,
                 text: "5mS".to_string(),
             },
             Label {
-                value: 10000000,
+                value: 10 * MS,
                 text: "10mS".to_string(),
             },
             Label {
-                value: 20000000,
+                value: 20 * MS,
                 text: "20mS".to_string(),
             },
             Label {
-                value: 50000000,
+                value: 50 * MS,
                 text: "50mS".to_string(),
             },
             Label {
-                value: 100000000,
+                value: 100 * MS,
                 text: "100mS".to_string(),
             },
             Label {
-                value: 200000000,
+                value: 200 * MS,
                 text: "200mS".to_string(),
             },
             Label {
-                value: 500000000,
+                value: 500 * MS,
                 text: "500mS".to_string(),
             },
         ];
