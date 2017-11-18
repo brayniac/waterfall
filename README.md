@@ -2,15 +2,21 @@
 
 waterfall is a library to render a PNG image from a Heatmap. It is expected to be useful in visualising latency measurements over time
 
-[![travis-badge][]][travis] [![downloads-badge][] ![release-badge][]][crate] [![license-badge][]](#license)
+[![conduct-badge][]][conduct] [![travis-badge][]][travis] [![downloads-badge][] ![release-badge][]][crate] [![license-badge][]](#license)
 
+[conduct-badge]: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
 [travis-badge]: https://img.shields.io/travis/brayniac/waterfall/master.svg
 [downloads-badge]: https://img.shields.io/crates/d/waterfall.svg
 [release-badge]: https://img.shields.io/crates/v/waterfall.svg
 [license-badge]: https://img.shields.io/crates/l/waterfall.svg
+[conduct]: https://brayniac.github.io/conduct
 [travis]: https://travis-ci.org/brayniac/waterfall
 [crate]: https://crates.io/crates/waterfall
 [Cargo]: https://github.com/rust-lang/cargo
+
+## Code of Conduct
+
+**NOTE**: All conversations and contributions to this project shall adhere to the [Code of Conduct][conduct]
 
 ## Usage
 
