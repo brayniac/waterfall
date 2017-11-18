@@ -63,7 +63,7 @@ impl Waterfall {
         Waterfall { config: config }
     }
 
-    pub fn render_png(&mut self, heatmap: &Heatmap, file: String) {
+    pub fn render_png(&mut self, heatmap: &Heatmap, file: &str) {
         let height = heatmap.num_slices() as usize;
         let width = heatmap.histogram_buckets() as usize;
 
@@ -197,7 +197,7 @@ impl Waterfall {
             y += 1;
         }
 
-        let _ = buffer.write_png(file.clone());
+        let _ = buffer.write_png(file);
     }
 }
 
@@ -321,7 +321,7 @@ impl ImageBuffer<ColorRgb> {
         }
     }
 
-    pub fn write_png(self, file: String) -> Result<(), &'static str> {
+    pub fn write_png(self, file: &str) -> Result<(), &'static str> {
         let mut buffer = Vec::<u8>::with_capacity(self.height * self.width);
         for row in 0..self.height {
             for col in 0..self.width {
