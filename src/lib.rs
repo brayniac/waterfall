@@ -8,7 +8,7 @@ extern crate rusttype;
 use heatmap::Heatmap;
 use hsl::HSL;
 use png::HasParameters;
-use rusttype::{FontCollection, PixelsXY, PositionedGlyph, point};
+use rusttype::{FontCollection, Scale, PositionedGlyph, point};
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
@@ -224,7 +224,7 @@ fn string_buffer(string: &str, size: f32) -> ImageBuffer<ColorRgb> {
     // size and scaling
     let height: f32 = size;
     let pixel_height = height.ceil() as usize;
-    let scale = PixelsXY(height * 1.0, height);
+    let scale = Scale { x: height * 1.0, y: height };
 
     let v_metrics = font.v_metrics(scale);
     let offset = point(0.0, v_metrics.ascent);
@@ -233,7 +233,7 @@ fn string_buffer(string: &str, size: f32) -> ImageBuffer<ColorRgb> {
 
     let width = glyphs
         .iter()
-        .map(|g| g.h_metrics().advance_width)
+        .map(|g| g.unpositioned().h_metrics().advance_width)
         .fold(0.0, |x, y| x + y)
         .ceil() as usize;
 
